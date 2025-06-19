@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonDetailedView: Button
     private lateinit var buttonExit: Button
     private lateinit var buttonDisplayPlaylist: Button
+    private lateinit var buttonAverageRating: Button
     
     companion object {
         const val MAX_SONGS = 5
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         buttonDetailedView = findViewById(R.id.buttonDetailedView)
         buttonExit = findViewById(R.id.buttonExit)
         buttonDisplayPlaylist = findViewById(R.id.buttonDisplayPlaylist)
+        buttonAverageRating = findViewById(R.id.buttonAverageRating)
         
         // Set up add song button
         buttonAddSong.setOnClickListener {
@@ -48,6 +50,11 @@ class MainActivity : AppCompatActivity() {
         // Set up display playlist button
         buttonDisplayPlaylist.setOnClickListener {
             displayPlaylistUsingLoop()
+        }
+        
+        // Set up average rating button
+        buttonAverageRating.setOnClickListener {
+            calculateAndDisplayAverageRating()
         }
         
         // Set up exit button
@@ -137,6 +144,49 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Playlist Display")
             .setMessage(playlistBuilder.toString())
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+    
+    private fun calculateAndDisplayAverageRating() {
+        if (playlist.isEmpty()) {
+            Toast.makeText(this, "Playlist is empty! Add some songs first.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        // Calculate average rating using a loop
+        var totalRating = 0.0
+        var songCount = 0
+        
+        // Loop through playlist to sum all ratings
+        for (song in playlist) {
+            totalRating += song.rating
+            songCount++
+        }
+        
+        val averageRating = totalRating / songCount
+        
+        // Build detailed rating information
+        val ratingBuilder = StringBuilder()
+        ratingBuilder.append("Rating Analysis:\n\n")
+        
+        // Loop to show individual ratings
+        for (i in playlist.indices) {
+            val song = playlist[i]
+            ratingBuilder.append("${i + 1}. ${song.title}: ${song.rating}/5\n")
+        }
+        
+        ratingBuilder.append("\n")
+        ratingBuilder.append("Total Songs: $songCount\n")
+        ratingBuilder.append("Sum of Ratings: $totalRating\n")
+        ratingBuilder.append("Average Rating: ${String.format("%.2f", averageRating)}/5")
+        
+        // Display average rating in a dialog
+        AlertDialog.Builder(this)
+            .setTitle("Average Song Rating")
+            .setMessage(ratingBuilder.toString())
             .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
             }
