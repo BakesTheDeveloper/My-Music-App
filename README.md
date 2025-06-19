@@ -18,6 +18,221 @@ A modern Android music playlist management application built with Kotlin, featur
 - Manual Memory Management: Custom index tracking and null checking for array elements
 - Pure Kotlin Implementation: Modern Android development with Kotlin language features
 
+## 📸 Screenshots & Code Walkthrough
+
+### Main Screen Interface
+![Main Screen](screenshots/main_screen.png)
+
+The main screen features a clean, intuitive interface with the custom background image and color-coordinated buttons. Each UI element is carefully positioned for optimal user experience.
+
+**Layout Structure (activity_main.xml):**
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/mainactivity">
+    
+    <!-- App Title with semi-transparent background -->
+    <TextView
+        android:text="My Music App"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="#80000000"
+        android:padding="8dp" />
+```
+
+**Key UI Components:**
+- Custom background image (mainactivity.jpg) provides visual appeal
+- Semi-transparent overlays ensure text readability
+- Input fields with light backgrounds for better contrast
+- Consistent button styling with #d2c6ae color scheme
+
+### Song Input Interface
+![Song Input](screenshots/song_input.png)
+
+The input section allows users to add songs with three key pieces of information: title, artist, and rating.
+
+**Input Validation Code (MainActivity.kt):**
+```kotlin
+private fun addSongToPlaylist() {
+    // Check if playlist is full using array bounds
+    if (currentSongCount >= MAX_SONGS) {
+        Toast.makeText(this, "Playlist is full! Maximum $MAX_SONGS songs allowed.", Toast.LENGTH_SHORT).show()
+        return
+    }
+    
+    val title = editTextTitle.text.toString().trim()
+    val artist = editTextArtist.text.toString().trim()
+    val ratingText = editTextRating.text.toString().trim()
+    
+    // Validate all fields are filled
+    if (title.isEmpty() || artist.isEmpty() || ratingText.isEmpty()) {
+        Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+        return
+    }
+    
+    // Validate rating range
+    val rating = ratingText.toDouble()
+    if (rating < 0 || rating > 5) {
+        Toast.makeText(this, "Rating must be between 0 and 5", Toast.LENGTH_SHORT).show()
+        return
+    }
+}
+```
+
+### Array-Based Storage Implementation
+![Playlist Display](screenshots/playlist_display.png)
+
+The playlist display demonstrates the core array-based storage system with loop-driven data retrieval.
+
+**Array Management Code:**
+```kotlin
+// Fixed-size array declaration
+private val playlist = Array<Song?>(MAX_SONGS) { null }
+private var currentSongCount = 0
+
+// Finding empty slot using traditional loop
+var emptyIndex = -1
+for (i in 0 until MAX_SONGS) {
+    if (playlist[i] == null) {
+        emptyIndex = i
+        break
+    }
+}
+
+// Adding song to array
+if (emptyIndex != -1) {
+    val newSong = Song(title, artist, rating)
+    playlist[emptyIndex] = newSong
+    currentSongCount++
+}
+```
+
+### Loop-Based Display Function
+![Display Playlist Dialog](screenshots/display_dialog.png)
+
+The display playlist feature showcases loop-based iteration through the array structure.
+
+**Display Implementation:**
+```kotlin
+private fun displayPlaylistUsingLoop() {
+    val playlistBuilder = StringBuilder()
+    playlistBuilder.append("Current Playlist:\n\n")
+    
+    var displayCount = 1
+    // Loop through array to display each non-null song
+    for (i in 0 until MAX_SONGS) {
+        if (playlist[i] != null) {
+            val song = playlist[i]!!
+            playlistBuilder.append("$displayCount. ${song.title}\n")
+            playlistBuilder.append("   Artist: ${song.artist}\n")
+            playlistBuilder.append("   Rating: ${song.rating}/5\n\n")
+            displayCount++
+        }
+    }
+    
+    playlistBuilder.append("Total Songs: $currentSongCount/$MAX_SONGS")
+}
+```
+
+### Mathematical Loop Calculations
+![Average Rating Calculation](screenshots/average_rating.png)
+
+The average rating feature demonstrates mathematical operations using loop-based calculations.
+
+**Average Calculation Code:**
+```kotlin
+private fun calculateAndDisplayAverageRating() {
+    // Calculate average rating using loops
+    var totalRating = 0.0
+    var songCount = 0
+    
+    // Loop through array to sum all ratings
+    for (i in 0 until MAX_SONGS) {
+        if (playlist[i] != null) {
+            totalRating += playlist[i]!!.rating
+            songCount++
+        }
+    }
+    
+    val averageRating = totalRating / songCount
+    
+    // Display individual ratings using another loop
+    for (i in 0 until MAX_SONGS) {
+        if (playlist[i] != null) {
+            val song = playlist[i]!!
+            ratingBuilder.append("${displayCount}. ${song.title}: ${song.rating}/5\n")
+        }
+    }
+}
+```
+
+### Detailed View Screen
+![Detailed View](screenshots/detailed_view.png)
+
+The detailed view provides a comprehensive overview of the playlist with enhanced formatting and navigation options.
+
+**DetailedViewActivity Layout:**
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/mainactivity">
+    
+    <ScrollView
+        android:background="#CC000000"
+        android:padding="12dp">
+        
+        <TextView
+            android:id="@+id/textViewPlaylistDetails"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+    </ScrollView>
+    
+    <Button
+        android:id="@+id/buttonBackToMain"
+        android:backgroundTint="#d2c6ae"
+        android:text="Back to Main Screen" />
+</LinearLayout>
+```
+
+**Navigation Implementation:**
+```kotlin
+private fun navigateToDetailedView() {
+    val intent = Intent(this, DetailedViewActivity::class.java)
+    
+    // Convert array to ArrayList for intent passing
+    val playlistData = ArrayList<String>()
+    for (i in 0 until MAX_SONGS) {
+        if (playlist[i] != null) {
+            playlistData.add(playlist[i].toString())
+        }
+    }
+    
+    intent.putStringArrayListExtra("playlist_data", playlistData)
+    startActivity(intent)
+}
+```
+
+### Data Structure Visualization
+![Song Data Structure](screenshots/song_structure.png)
+
+**Song Data Class:**
+```kotlin
+data class Song(
+    var title: String,
+    var artist: String,
+    var rating: Double
+) {
+    override fun toString(): String {
+        return "$title by $artist (Rating: $rating/5)"
+    }
+}
+```
+
+This simple yet effective data structure encapsulates all song information while providing a clean string representation for display purposes.
+
 ## 🏗️ Architecture
 
 ### Data Structure
@@ -41,12 +256,7 @@ private var currentSongCount = 0
 - Text Readability: Semi-transparent overlays ensure content visibility over background
 
 ### Button Color Scheme
-- 🟣 Add Song: Purple (`#6200EA`)
-- 🟢 Display Playlist: Green (`#4CAF50`)
-- 🟠 Average Rating: Orange (`#FF9800`)
-- 🟣 Detailed View: Purple (`#9C27B0`)
-- 🔴 Exit App: Red (`#FF5722`)
-- 🔵 Back to Main: Blue (`#2196F3`)
+- 🟤 All Buttons: Warm Beige (`#d2c6ae`)
 
 ## 🔧 Technical Implementation
 
