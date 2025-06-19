@@ -1,5 +1,6 @@
 package com.example.mymusicapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -13,6 +14,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextArtist: EditText
     private lateinit var editTextRating: EditText
     private lateinit var buttonAddSong: Button
+    private lateinit var buttonDetailedView: Button
     
     companion object {
         const val MAX_SONGS = 5
@@ -26,10 +28,16 @@ class MainActivity : AppCompatActivity() {
         editTextArtist = findViewById(R.id.editTextArtist)
         editTextRating = findViewById(R.id.editTextRating)
         buttonAddSong = findViewById(R.id.buttonAddSong)
+        buttonDetailedView = findViewById(R.id.buttonDetailedView)
         
         // Set up add song button
         buttonAddSong.setOnClickListener {
             addSongToPlaylist()
+        }
+        
+        // Set up detailed view button
+        buttonDetailedView.setOnClickListener {
+            navigateToDetailedView()
         }
     }
     
@@ -71,5 +79,18 @@ class MainActivity : AppCompatActivity() {
         } catch (e: NumberFormatException) {
             Toast.makeText(this, "Please enter a valid rating number", Toast.LENGTH_SHORT).show()
         }
+    }
+    
+    private fun navigateToDetailedView() {
+        val intent = Intent(this, DetailedViewActivity::class.java)
+        
+        // Convert playlist to string array for passing to intent
+        val playlistData = ArrayList<String>()
+        for (song in playlist) {
+            playlistData.add(song.toString())
+        }
+        
+        intent.putStringArrayListExtra("playlist_data", playlistData)
+        startActivity(intent)
     }
 }
