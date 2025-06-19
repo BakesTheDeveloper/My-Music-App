@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonAddSong: Button
     private lateinit var buttonDetailedView: Button
     private lateinit var buttonExit: Button
+    private lateinit var buttonDisplayPlaylist: Button
     
     companion object {
         const val MAX_SONGS = 5
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         buttonAddSong = findViewById(R.id.buttonAddSong)
         buttonDetailedView = findViewById(R.id.buttonDetailedView)
         buttonExit = findViewById(R.id.buttonExit)
+        buttonDisplayPlaylist = findViewById(R.id.buttonDisplayPlaylist)
         
         // Set up add song button
         buttonAddSong.setOnClickListener {
@@ -40,6 +43,11 @@ class MainActivity : AppCompatActivity() {
         // Set up detailed view button
         buttonDetailedView.setOnClickListener {
             navigateToDetailedView()
+        }
+        
+        // Set up display playlist button
+        buttonDisplayPlaylist.setOnClickListener {
+            displayPlaylistUsingLoop()
         }
         
         // Set up exit button
@@ -103,5 +111,35 @@ class MainActivity : AppCompatActivity() {
     
     private fun exitApp() {
         finishAffinity() // Closes all activities and exits the app
+    }
+    
+    private fun displayPlaylistUsingLoop() {
+        if (playlist.isEmpty()) {
+            Toast.makeText(this, "Playlist is empty! Add some songs first.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        // Build playlist string using a loop
+        val playlistBuilder = StringBuilder()
+        playlistBuilder.append("Current Playlist:\n\n")
+        
+        // Loop through playlist to display each song
+        for (i in playlist.indices) {
+            val song = playlist[i]
+            playlistBuilder.append("${i + 1}. ${song.title}\n")
+            playlistBuilder.append("   Artist: ${song.artist}\n")
+            playlistBuilder.append("   Rating: ${song.rating}/5\n\n")
+        }
+        
+        playlistBuilder.append("Total Songs: ${playlist.size}/$MAX_SONGS")
+        
+        // Display playlist in a dialog
+        AlertDialog.Builder(this)
+            .setTitle("Playlist Display")
+            .setMessage(playlistBuilder.toString())
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }

@@ -52,6 +52,15 @@
         android:layout_marginBottom="16dp" />
 
     <Button
+        android:id="@+id/buttonDisplayPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Display Playlist"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
         android:id="@+id/buttonDetailedView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
