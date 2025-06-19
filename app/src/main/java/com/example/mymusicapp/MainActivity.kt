@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editTextRating: EditText
     private lateinit var buttonAddSong: Button
     private lateinit var buttonDetailedView: Button
+    private lateinit var buttonExit: Button
     
     companion object {
         const val MAX_SONGS = 5
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         editTextRating = findViewById(R.id.editTextRating)
         buttonAddSong = findViewById(R.id.buttonAddSong)
         buttonDetailedView = findViewById(R.id.buttonDetailedView)
+        buttonExit = findViewById(R.id.buttonExit)
         
         // Set up add song button
         buttonAddSong.setOnClickListener {
@@ -38,6 +40,11 @@ class MainActivity : AppCompatActivity() {
         // Set up detailed view button
         buttonDetailedView.setOnClickListener {
             navigateToDetailedView()
+        }
+        
+        // Set up exit button
+        buttonExit.setOnClickListener {
+            exitApp()
         }
     }
     
@@ -92,5 +99,9 @@ class MainActivity : AppCompatActivity() {
         
         intent.putStringArrayListExtra("playlist_data", playlistData)
         startActivity(intent)
+    }
+    
+    private fun exitApp() {
+        finishAffinity() // Closes all activities and exits the app
     }
 }
