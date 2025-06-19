@@ -10,7 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     
-    private val playlist = mutableListOf<Song>()
+    // Using arrays instead of ArrayList
+    private val playlist = Array<Song?>(MAX_SONGS) { null }
+    private var currentSongCount = 0
+    
     private lateinit var editTextTitle: EditText
     private lateinit var editTextArtist: EditText
     private lateinit var editTextRating: EditText
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
         // Initialize UI components
         editTextTitle = findViewById(R.id.editTextTitle)
         editTextArtist = findViewById(R.id.editTextArtist)
@@ -64,8 +68,8 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun addSongToPlaylist() {
-        // Check if playlist is full
-        if (playlist.size >= MAX_SONGS) {
+        // Check if playlist is full using loop
+        if (currentSongCount >= MAX_SONGS) {
             Toast.makeText(this, "Playlist is full! Maximum $MAX_SONGS songs allowed.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -87,16 +91,28 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             
-            // Create and add song to playlist
-            val newSong = Song(title, artist, rating)
-            playlist.add(newSong)
+            // Find first empty slot using loop
+            var emptyIndex = -1
+            for (i in 0 until MAX_SONGS) {
+                if (playlist[i] == null) {
+                    emptyIndex = i
+                    break
+                }
+            }
             
-            // Clear input fields
-            editTextTitle.setText("")
-            editTextArtist.setText("")
-            editTextRating.setText("")
-            
-            Toast.makeText(this, "Song added! (${playlist.size}/$MAX_SONGS songs)", Toast.LENGTH_SHORT).show()
+            if (emptyIndex != -1) {
+                // Create and add song to playlist array
+                val newSong = Song(title, artist, rating)
+                playlist[emptyIndex] = newSong
+                currentSongCount++
+                
+                // Clear input fields
+                editTextTitle.setText("")
+                editTextArtist.setText("")
+                editTextRating.setText("")
+                
+                Toast.makeText(this, "Song added! ($currentSongCount/$MAX_SONGS songs)", Toast.LENGTH_SHORT).show()
+            }
             
         } catch (e: NumberFormatException) {
             Toast.makeText(this, "Please enter a valid rating number", Toast.LENGTH_SHORT).show()
@@ -106,13 +122,24 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToDetailedView() {
         val intent = Intent(this, DetailedViewActivity::class.java)
         
-        // Convert playlist to string array for passing to intent
-        val playlistData = ArrayList<String>()
-        for (song in playlist) {
-            playlistData.add(song.toString())
+        // Convert playlist array to string array using loops
+        val playlistData = Array<String?>(MAX_SONGS) { null }
+        var dataCount = 0
+        
+        for (i in 0 until MAX_SONGS) {
+            if (playlist[i] != null) {
+                playlistData[dataCount] = playlist[i].toString()
+                dataCount++
+            }
         }
         
-        intent.putStringArrayListExtra("playlist_data", playlistData)
+        // Convert to ArrayList for intent (required by Android)
+        val playlistList = ArrayList<String>()
+        for (i in 0 until dataCount) {
+            playlistData[i]?.let { playlistList.add(it) }
+        }
+        
+        intent.putStringArrayListExtra("playlist_data", playlistList)
         startActivity(intent)
     }
     
@@ -121,24 +148,28 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun displayPlaylistUsingLoop() {
-        if (playlist.isEmpty()) {
+        if (currentSongCount == 0) {
             Toast.makeText(this, "Playlist is empty! Add some songs first.", Toast.LENGTH_SHORT).show()
             return
         }
         
-        // Build playlist string using a loop
+        // Build playlist string using loops
         val playlistBuilder = StringBuilder()
         playlistBuilder.append("Current Playlist:\n\n")
         
-        // Loop through playlist to display each song
-        for (i in playlist.indices) {
-            val song = playlist[i]
-            playlistBuilder.append("${i + 1}. ${song.title}\n")
-            playlistBuilder.append("   Artist: ${song.artist}\n")
-            playlistBuilder.append("   Rating: ${song.rating}/5\n\n")
+        var displayCount = 1
+        // Loop through array to display each non-null song
+        for (i in 0 until MAX_SONGS) {
+            if (playlist[i] != null) {
+                val song = playlist[i]!!
+                playlistBuilder.append("$displayCount. ${song.title}\n")
+                playlistBuilder.append("   Artist: ${song.artist}\n")
+                playlistBuilder.append("   Rating: ${song.rating}/5\n\n")
+                displayCount++
+            }
         }
         
-        playlistBuilder.append("Total Songs: ${playlist.size}/$MAX_SONGS")
+        playlistBuilder.append("Total Songs: $currentSongCount/$MAX_SONGS")
         
         // Display playlist in a dialog
         AlertDialog.Builder(this)
@@ -151,31 +182,37 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun calculateAndDisplayAverageRating() {
-        if (playlist.isEmpty()) {
+        if (currentSongCount == 0) {
             Toast.makeText(this, "Playlist is empty! Add some songs first.", Toast.LENGTH_SHORT).show()
             return
         }
         
-        // Calculate average rating using a loop
+        // Calculate average rating using loops
         var totalRating = 0.0
         var songCount = 0
         
-        // Loop through playlist to sum all ratings
-        for (song in playlist) {
-            totalRating += song.rating
-            songCount++
+        // Loop through array to sum all ratings
+        for (i in 0 until MAX_SONGS) {
+            if (playlist[i] != null) {
+                totalRating += playlist[i]!!.rating
+                songCount++
+            }
         }
         
         val averageRating = totalRating / songCount
         
-        // Build detailed rating information
+        // Build detailed rating information using loops
         val ratingBuilder = StringBuilder()
         ratingBuilder.append("Rating Analysis:\n\n")
         
+        var displayCount = 1
         // Loop to show individual ratings
-        for (i in playlist.indices) {
-            val song = playlist[i]
-            ratingBuilder.append("${i + 1}. ${song.title}: ${song.rating}/5\n")
+        for (i in 0 until MAX_SONGS) {
+            if (playlist[i] != null) {
+                val song = playlist[i]!!
+                ratingBuilder.append("$displayCount. ${song.title}: ${song.rating}/5\n")
+                displayCount++
+            }
         }
         
         ratingBuilder.append("\n")

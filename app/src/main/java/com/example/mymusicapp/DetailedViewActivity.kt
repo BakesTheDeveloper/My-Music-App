@@ -37,7 +37,8 @@ class DetailedViewActivity : AppCompatActivity() {
         val detailsBuilder = StringBuilder()
         detailsBuilder.append("Playlist Details:\n\n")
         
-        for (i in playlistData.indices) {
+        // Use traditional for loop with array-like access
+        for (i in 0 until playlistData.size) {
             detailsBuilder.append("${i + 1}. ${playlistData[i]}\n\n")
         }
         
